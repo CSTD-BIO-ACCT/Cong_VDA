@@ -11,7 +11,7 @@ df = pd.read_csv('dataset.csv')
 #Columns to group by
 grouping_columns = [
     'payment_method', 'currency', 'issuer_country',
-    'shopper_country', 'risk_scoring', 'shopper_interaction', 'company_account', 'creation_date_day', 'type', 'issuer_name', 'merchant_account', "amount_eur", "timezone"
+    'shopper_country', 'risk_scoring', 'shopper_interaction', 'issuer_name', 'merchant_account', "amount_eur", "liability_shift", "pos_entry_mode", "acquirer", "avs_response", "cvc2_response", "3d_directory_response", "3d_authentication_response", "payment_method_variant", "global_card_brand", "3ds_version"
 ]
 
 #Convert to datetime format for creation date

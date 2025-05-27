@@ -11,7 +11,7 @@ df = pd.read_csv('dataset.csv')
 #Define relevant columns
 grouping_columns = [
     'payment_method', 'currency', 'issuer_country',
-    'shopper_country', 'risk_scoring', 'shopper_interaction', 'company_account', 'creation_date_day', 'type', 'issuer_name', 'merchant_account', "amount_eur", "timezone"
+    'shopper_country', 'risk_scoring', 'shopper_interaction', 'issuer_name', 'merchant_account', "amount_eur", "liability_shift", "pos_entry_mode", "acquirer", "avs_response", "cvc2_response", "3d_directory_response", "3d_authentication_response", "payment_method_variant", "global_card_brand", "3ds_version"
 ]
 
 #Convert creation_date to datetime if available
@@ -87,30 +87,26 @@ def update_charts(group_var):
             fraud_transactions=('acquirer_response', lambda x: (x == 'FRAUD').sum())
         ).reset_index()
         grouped['fraud_ratio'] = grouped['fraud_transactions'] / grouped['total_transactions']
-
-        fig_ratio = px.bar(grouped, x='amount_bucket', y='fraud_ratio',
-                           title="Fraud Ratio by Amount Bucket (EUR)",
-                           labels={'amount_bucket': 'Amount Bucket (EUR)', 'fraud_ratio': 'Fraud Ratio'})
-        fig_ratio.update_layout(yaxis_tickformat='.0%')
-
-        fig_count = px.bar(grouped, x='amount_bucket', y='fraud_transactions',
-                           title="Fraud Count by Amount Bucket (EUR)",
-                           labels={'amount_bucket': 'Amount Bucket (EUR)', 'fraud_transactions': 'Fraud Transactions'})
+        x_col = 'amount_bucket'
     else:
         grouped = df.groupby(group_var).agg(
             total_transactions=('acquirer_response', 'count'),
             fraud_transactions=('acquirer_response', lambda x: (x == 'FRAUD').sum())
         ).reset_index()
         grouped['fraud_ratio'] = grouped['fraud_transactions'] / grouped['total_transactions']
+        x_col = group_var
 
-        fig_ratio = px.bar(grouped, x=group_var, y='fraud_ratio',
-                           title=f"Fraud Ratio by {group_var}",
-                           labels={group_var: group_var, 'fraud_ratio': 'Fraud Ratio'})
-        fig_ratio.update_layout(yaxis_tickformat='.0%')
+        if group_var == 'issuer_name':
+            grouped = grouped[grouped['fraud_ratio'] > 0].sort_values(by='fraud_ratio', ascending=True)
 
-        fig_count = px.bar(grouped, x=group_var, y='fraud_transactions',
-                           title=f"Fraud Count by {group_var}",
-                           labels={group_var: group_var, 'fraud_transactions': 'Fraud Transactions'})
+    fig_ratio = px.bar(grouped, x=x_col, y='fraud_ratio',
+                       title=f"Fraud Ratio by {group_var if group_var != 'amount_eur' else 'Amount Bucket (EUR)'}",
+                       labels={x_col: x_col, 'fraud_ratio': 'Fraud Ratio'})
+    fig_ratio.update_layout(yaxis_tickformat='.0%')
+
+    fig_count = px.bar(grouped, x=x_col, y='fraud_transactions',
+                       title=f"Fraud Count by {group_var if group_var != 'amount_eur' else 'Amount Bucket (EUR)'}",
+                       labels={x_col: x_col, 'fraud_transactions': 'Fraud Transactions'})
 
     return fig_ratio, fig_count
 
