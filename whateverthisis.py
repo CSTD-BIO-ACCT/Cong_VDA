@@ -118,7 +118,7 @@ st.plotly_chart(fig_single_count)
 st.dataframe(single_group)
 
 
-# Two-variable grouping dashboard
+#Two-variable grouping dashboard
 st.header("Approval Ratio and Counts by Two Variables")
 st.markdown("Select exactly two variables to group by and analyze approval ratios.")
 
