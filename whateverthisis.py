@@ -1,10 +1,9 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-from itertools import combinations
 import numpy as np
 import pycountry
-import requests
+
 #yes
 #Load Dataset
 df = pd.read_csv('dataset.csv')
