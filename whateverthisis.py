@@ -20,6 +20,8 @@ if 'creation_date' in df.columns:
     df = df.dropna(subset=['creation_date'])
     df['date_only'] = df['creation_date'].dt.date
     df['datetime_halfhour'] = df['creation_date'].dt.floor('30min')
+    df['datetime_tenmins'] = df['creation_date'].dt.floor('10min')
+
 
 #Remove NA rows
 df = df.dropna(subset=['acquirer_response'])
@@ -236,9 +238,9 @@ st.plotly_chart(fig_shopper_map_count)
 st.dataframe(shopper_geo_group)
 
 
-#Time series analysis (aggregated to 30-minute intervals)
-st.header("Time Series Analysis of Approval Ratios and Counts (30-Minute Intervals)")
-time_series = df.groupby('datetime_halfhour').agg(
+#Time series analysis (aggregated to 10-minute intervals)
+st.header("Time Series Analysis of Approval Ratios and Counts (10-Minute Intervals)")
+time_series = df.groupby('datetime_tenmins').agg(
     total_transactions=('acquirer_response', 'count'),
     approved_transactions=('acquirer_response', lambda x: (x == 'APPROVED').sum())
 ).reset_index()
@@ -246,19 +248,19 @@ time_series['approval_ratio'] = time_series['approved_transactions'] / time_seri
 
 fig_ts_ratio = px.line(
     time_series,
-    x='datetime_halfhour',
+    x='datetime_tenmins',
     y='approval_ratio',
-    title="Approval Ratio Over Time (Per 30 Minutes)",
-    labels={'approval_ratio': 'Approval Ratio', 'datetime_halfhour': 'Datetime'}
+    title="Approval Ratio Over Time (Per 10 Minutes)",
+    labels={'approval_ratio': 'Approval Ratio', 'datetime_tenmins': 'Datetime'}
 )
 fig_ts_ratio.update_layout(yaxis_tickformat='.0%')
 
 fig_ts_count = px.line(
     time_series,
-    x='datetime_halfhour',
+    x='datetime_tenmins',
     y='approved_transactions',
-    title="Approved Transactions Count Over Time (Per 30 Minutes)",
-    labels={'approved_transactions': 'Approved Transactions', 'datetime_halfhour': 'Datetime'}
+    title="Approved Transactions Count Over Time (Per 10 Minutes)",
+    labels={'approved_transactions': 'Approved Transactions', 'datetime_tenmins': 'Datetime'}
 )
 
 st.plotly_chart(fig_ts_ratio)
