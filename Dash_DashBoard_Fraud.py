@@ -10,8 +10,7 @@ df = pd.read_csv('dataset.csv')
 
 #Define relevant columns
 grouping_columns = [
-    'payment_method', 'currency', 'issuer_country',
-    'shopper_country', 'risk_scoring', 'shopper_interaction', 'issuer_name', 'merchant_account', "amount_eur", "liability_shift", "pos_entry_mode", "acquirer", "avs_response", "cvc2_response", "3d_directory_response", "3d_authentication_response", "payment_method_variant", "global_card_brand", "3ds_version"
+    'payment_method', 'currency', "amount_eur", 'issuer_name', "liability_shift", "acquirer", "avs_response", "cvc2_response", "3d_directory_response", "3d_authentication_response", "payment_method_variant", "global_card_brand", "3ds_version"
 ]
 
 #Convert creation_date to datetime if available
