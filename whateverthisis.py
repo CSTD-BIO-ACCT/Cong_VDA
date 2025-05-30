@@ -3,15 +3,13 @@ import plotly.express as px
 import streamlit as st
 import numpy as np
 import pycountry
-#ss
-#yes
+
 #Load Dataset
 df = pd.read_csv('dataset.csv')
 
-#Columns to group by
+#Columns to groupby
 grouping_columns = [
-    'payment_method', 'currency', 'issuer_country',
-    'shopper_country', 'risk_scoring', 'shopper_interaction', 'issuer_name', 'merchant_account', "amount_eur", "liability_shift", "pos_entry_mode", "acquirer", "avs_response", "cvc2_response", "3d_directory_response", "3d_authentication_response", "payment_method_variant", "global_card_brand", "3ds_version"
+    'payment_method', 'currency', 'risk_scoring', 'shopper_interaction', 'merchant_account', "amount_eur", "liability_shift", "acquirer", "avs_response", "cvc2_response", "3d_directory_response", "3d_authentication_response", "payment_method_variant", "global_card_brand", "3ds_version"
 ]
 
 #Convert to datetime format for creation date
@@ -62,8 +60,8 @@ if len(date_range) == 2:
 df = df[df['currency'].isin(currency_filter)]
 df = df[df['payment_method'].isin(payment_method_filter)]
 
-#One-variable grouping dashboard
-st.header("Approval Ratio and Counts by Single Variable")
+#Grouping Histogram
+st.header("Approval Ratio and Counts by Variable")
 single_group_var = st.selectbox("Select one variable to group by:", options=grouping_columns)
 
 if single_group_var == 'amount_eur':
@@ -119,53 +117,7 @@ st.plotly_chart(fig_single_ratio)
 st.plotly_chart(fig_single_count)
 st.dataframe(single_group)
 
-
-#Two-variable grouping dashboard
-st.header("Approval Ratio and Counts by Two Variables")
-st.markdown("Select exactly two variables to group by and analyze approval ratios.")
-
-two_group_vars = st.multiselect(
-    "Select 2 variables for grouping:",
-    options=grouping_columns,
-    default=['payment_method', 'currency']
-)
-
-if len(two_group_vars) != 2:
-    st.warning("Please select exactly 2 variables.")
-else:
-    grouped = df.groupby(two_group_vars).agg(
-        total_transactions=('acquirer_response', 'count'),
-        approved_transactions=('acquirer_response', lambda x: (x == 'APPROVED').sum())
-    ).reset_index()
-
-    grouped['approval_ratio'] = grouped['approved_transactions'] / grouped['total_transactions']
-
-    fig_ratio = px.bar(
-        grouped,
-        x=two_group_vars[0],
-        y='approval_ratio',
-        color=two_group_vars[1],
-        barmode='group',
-        title=f"Approval Ratio by {two_group_vars[0]} and {two_group_vars[1]}",
-        labels={'approval_ratio': 'Approval Ratio'}
-    )
-    fig_ratio.update_layout(yaxis_tickformat='.0%')
-
-    fig_count = px.bar(
-        grouped,
-        x=two_group_vars[0],
-        y='approved_transactions',
-        color=two_group_vars[1],
-        barmode='group',
-        title=f"Approved Transactions Count by {two_group_vars[0]} and {two_group_vars[1]}",
-        labels={'approved_transactions': 'Approved Transactions'}
-    )
-
-    st.plotly_chart(fig_ratio)
-    st.plotly_chart(fig_count)
-    st.dataframe(grouped)
-
-#Geographic dashboard: Approval ratio by issuer_country
+#Geographic dashboard for Approval ratio by issuer_country
 st.header("Geographic Approval Ratio and Counts by Issuer Country")
 
 df_issuer_geo = df.dropna(subset=['issuer_country_alpha3'])
@@ -201,7 +153,7 @@ st.plotly_chart(fig_issuer_map_ratio)
 st.plotly_chart(fig_issuer_map_count)
 st.dataframe(issuer_geo_group)
 
-#Geographic dashboard: Approval ratio by shopper_country
+#Geographic dashboard for Approval ratio by shopper_country
 st.header("Geographic Approval Ratio and Counts by Shopper Country")
 
 df_shopper_geo = df.dropna(subset=['shopper_country_alpha3'])
